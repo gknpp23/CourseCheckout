@@ -1,0 +1,53 @@
+# Ignorar node_modules (dependências do Node.js e Angular)
+node_modules/
+
+# Ignorar arquivos de ambiente local (como .env)
+.env
+.env.local
+
+# Ignorar logs e diretórios de cache
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Ignorar pastas de build e distribuição
+dist/
+build/
+out/
+
+# Ignorar configurações do IDE/Editor
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ignorar arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivos específicos do Angular
+/.angular/cache
+
+# Ignorar arquivos específicos do Node.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignorar arquivos de configuração local (se houver)
+/config/local.yml
+/config/local.json
+
+# Ignorar arquivos de teste e cobertura
+coverage/
+*.lcov
+
+# Ignorar arquivos temporários
+*.tmp
+*.temp
+
