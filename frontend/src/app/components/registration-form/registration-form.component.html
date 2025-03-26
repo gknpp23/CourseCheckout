@@ -1,0 +1,65 @@
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>Inscreva-se no Curso</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+        <!-- Campo Nome -->
+        <mat-form-field appearance="fill">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="nome" required>
+          <mat-error *ngIf="registrationForm.get('nome')?.hasError('required')">
+            Nome é obrigatório
+          </mat-error>
+        </mat-form-field>
+  
+        <!-- Campo E-mail -->
+        <mat-form-field appearance="fill">
+          <mat-label>E-mail</mat-label>
+          <input matInput formControlName="email" type="email" required>
+          <mat-error *ngIf="registrationForm.get('email')?.hasError('required')">
+            E-mail é obrigatório
+          </mat-error>
+          <mat-error *ngIf="registrationForm.get('email')?.hasError('email')">
+            E-mail inválido
+          </mat-error>
+        </mat-form-field>
+  
+        <!-- Campo Celular -->
+        <mat-form-field appearance="fill">
+          <mat-label>Celular (com DDD)</mat-label>
+          <input matInput formControlName="celular" required>
+          <mat-hint>Ex: 11987654321</mat-hint>
+          <mat-error *ngIf="registrationForm.get('celular')?.hasError('required')">
+            Celular é obrigatório
+          </mat-error>
+          <mat-error *ngIf="registrationForm.get('celular')?.hasError('pattern')">
+            Deve ter 11 dígitos (DDD + número)
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Campo Idade -->
+        <mat-form-field appearance="fill">
+            <mat-label>Idade</mat-label>
+            <input matInput formControlName="idade" required>
+            <mat-hint>Ex: 21</mat-hint>
+            <mat-error *ngIf="registrationForm.get('idade')?.hasError('required')">
+              Idade é obrigatório
+            </mat-error>
+            <mat-error *ngIf="registrationForm.get('idade')?.hasError('pattern')">
+              Deve ter 02 dígitos
+            </mat-error>
+          </mat-form-field>
+  
+        <!-- Botão de Submit -->
+        <button mat-raised-button 
+                color="primary" 
+                type="submit" 
+                [disabled]="registrationForm.invalid"
+                class="submit-button">
+          Gerar Pagamento Pix
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>

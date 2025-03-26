@@ -1,0 +1,19 @@
+/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+body {
+  margin: 0;
+  font-family: Roboto, sans-serif;
+  padding: 20px;
+}
+
+mat-card {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
