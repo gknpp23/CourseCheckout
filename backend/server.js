@@ -11,65 +11,88 @@ app.use(express.json());
 
 const mongoURI = process.env.MONGO_URI;
 
+// Configuração do Mongoose para evitar warnings
+mongoose.set('strictQuery', true);
 mongoose.connect(mongoURI)
   .then(() => console.log('✅ Conectado ao MongoDB'))
   .catch(err => console.error('❌ Erro no MongoDB:', err));
 
-// Modelo Student com validação de email único
+// Modelo Student com validação de email único (removido o índice duplicado)
 const studentSchema = new mongoose.Schema({
-  nome: { type: String, required: true },
-  idade: { type: Number, required: true, min: 1 },
+  nome: { 
+    type: String, 
+    required: true,
+    trim: true
+  },
+  idade: { 
+    type: Number, 
+    required: true, 
+    min: 1,
+    max: 120 
+  },
   email: { 
     type: String, 
     required: true,
     unique: true,
+    trim: true,
+    lowercase: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido']
   },
-  celular: { type: String, required: true },
-  chavePix: { type: String, unique: true },
-  dataInscricao: { type: Date, default: Date.now }
-});
-
-// Adiciona índice único para melhor performance
-studentSchema.index({ email: 1 }, { unique: true });
-
-const Student = mongoose.model('Student', studentSchema);
-
-// Rota para verificar email único (usada pelo frontend)
-app.get('/api/verificar-email', async (req, res) => {
-  try {
-    const { email } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Parâmetro email é obrigatório' 
-      });
-    }
-
-    const alunoExistente = await Student.findOne({ email });
-    res.json({ 
-      success: true, 
-      emailDisponivel: !alunoExistente 
-    });
-
-  } catch (error) {
-    console.error('Erro ao verificar email:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao verificar email' 
-    });
+  celular: { 
+    type: String, 
+    required: true,
+    trim: true
+  },
+  chavePix: { 
+    type: String, 
+    unique: true 
+  },
+  dataInscricao: { 
+    type: Date, 
+    default: Date.now 
+  },
+  pagamentoConfirmado: {
+    type: Boolean,
+    default: false
   }
 });
 
-// Rota de inscrição com validações aprimoradas
+// Removido studentSchema.index() duplicado - já temos unique:true no campo email
+
+const Student = mongoose.model('Student', studentSchema);
+
+// Middleware para tratamento de erros assíncronos
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+// Rota para verificar email único
+app.get('/api/verificar-email', asyncHandler(async (req, res) => {
+  const { email } = req.query;
+  
+  if (!email) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Parâmetro email é obrigatório' 
+    });
+  }
+
+  const alunoExistente = await Student.findOne({ email });
+  res.json({ 
+    success: true, 
+    emailDisponivel: !alunoExistente 
+  });
+}));
+
+// Rota de inscrição com validações
 app.post('/api/inscricao', [
   body('nome')
     .notEmpty().withMessage('Nome é obrigatório')
     .trim()
-    .escape(),
+    .escape()
+    .isLength({ min: 3 }).withMessage('Nome precisa ter pelo menos 3 caracteres'),
   body('idade')
-    .isInt({ min: 1 }).withMessage('Idade deve ser um número positivo')
+    .isInt({ min: 1, max: 120 }).withMessage('Idade deve ser entre 1 e 120 anos')
     .toInt(),
   body('email')
     .isEmail().withMessage('E-mail inválido')
@@ -77,8 +100,8 @@ app.post('/api/inscricao', [
   body('celular')
     .notEmpty().withMessage('Celular é obrigatório')
     .trim()
-    .matches(/^[0-9]{10,15}$/).withMessage('Celular inválido')
-], async (req, res) => {
+    .matches(/^[0-9]{10,15}$/).withMessage('Celular inválido (10-15 números)')
+], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ 
@@ -87,66 +110,139 @@ app.post('/api/inscricao', [
     });
   }
 
-  try {
-    const { nome, idade, email, celular } = req.body;
+  const { nome, idade, email, celular } = req.body;
 
-    // Verificação redundante (importante para consistência)
-    const emailExistente = await Student.findOne({ email });
-    if (emailExistente) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'E-mail já cadastrado' 
-      });
-    }
-
-    const chavePix = `pix-${Math.random().toString(36).substr(2, 9)}-${Date.now().toString(36)}`;
-    
-    const aluno = new Student({ 
-      nome, 
-      idade, 
-      email, 
-      celular,
-      chavePix
+  // Verificação de email existente
+  const emailExistente = await Student.findOne({ email });
+  if (emailExistente) {
+    return res.status(409).json({ 
+      success: false, 
+      message: 'E-mail já cadastrado' 
     });
+  }
 
-    await aluno.save();
+  const chavePix = `pix-${Math.random().toString(36).substr(2, 9)}-${Date.now().toString(36)}`;
+  const valorCurso = 500.00; // Valor fixo ou poderia vir de um banco de dados
+  
+  const aluno = new Student({ 
+    nome, 
+    idade, 
+    email, 
+    celular,
+    chavePix
+  });
 
-    // Envia e-mail (assíncrono - não espera resposta)
-    sendEmail(email, 'Confirmação de Inscrição', `
+  await aluno.save();
+
+  // Envio de email com tratamento adequado
+  try {
+    await sendEmail(email, 'Confirmação de Inscrição', `
       Olá ${nome}, 
       Sua inscrição foi realizada com sucesso!
       Chave PIX para pagamento: ${chavePix}
-      Valor: R$ XXX,XX
+      Valor: R$ ${valorCurso.toFixed(2)}
+      Beneficiário: Cursos Online Ltda
       Prazo: 3 dias úteis
-    `).catch(console.error); // Captura erros sem afetar a resposta
+    `);
+    console.log(`E-mail enviado para: ${email}`);
+  } catch (emailError) {
+    console.error('Erro ao enviar e-mail:', emailError);
+    // Não falha o processo por erro de email
+  }
 
-    res.json({ 
-      success: true, 
-      chavePix,
-      aluno: {
-        id: aluno._id,
-        nome: aluno.nome,
-        email: aluno.email
-      }
-    });
-
-  } catch (error) {
-    console.error('🔥 ERRO:', error);
-    
-    let errorMessage = 'Erro ao processar inscrição';
-    let statusCode = 500;
-    
-    if (error.code === 11000) {
-      errorMessage = 'E-mail já cadastrado';
-      statusCode = 400;
+  res.json({ 
+    success: true, 
+    chavePix,
+    amount: valorCurso,
+    transactionId: aluno._id,
+    aluno: {
+      id: aluno._id,
+      nome: aluno.nome,
+      email: aluno.email
     }
+  });
+}));
 
-    res.status(statusCode).json({ 
+// Rota para gerar PIX
+app.post('/api/pix', asyncHandler(async (req, res) => {
+  const { studentId, amount } = req.body;
+  
+  if (!studentId || !amount) {
+    return res.status(400).json({ 
       success: false, 
-      message: errorMessage,
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: 'studentId e amount são obrigatórios' 
     });
   }
+
+  const aluno = await Student.findById(studentId);
+  if (!aluno) {
+    return res.status(404).json({ 
+      success: false, 
+      message: 'Aluno não encontrado' 
+    });
+  }
+
+  res.json({
+    success: true,
+    chavePix: aluno.chavePix,
+    amount,
+    beneficiary: 'Cursos Online Ltda',
+    dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+  });
+}));
+
+// Rota para confirmar pagamento
+app.put('/api/confirm-payment/:transactionId', asyncHandler(async (req, res) => {
+  const { transactionId } = req.params;
+
+  const aluno = await Student.findByIdAndUpdate(
+    transactionId,
+    { pagamentoConfirmado: true },
+    { new: true }
+  );
+
+  if (!aluno) {
+    return res.status(404).json({ 
+      success: false, 
+      message: 'Inscrição não encontrada' 
+    });
+  }
+
+  res.json({ 
+    success: true,
+    message: 'Pagamento confirmado com sucesso',
+    aluno
+  });
+}));
+
+// Rota para verificar status
+app.get('/api/payment-status/:transactionId', asyncHandler(async (req, res) => {
+  const { transactionId } = req.params;
+
+  const aluno = await Student.findById(transactionId);
+  if (!aluno) {
+    return res.status(404).json({ 
+      success: false, 
+      message: 'Inscrição não encontrada' 
+    });
+  }
+
+  res.json({ 
+    success: true,
+    pagamentoConfirmado: aluno.pagamentoConfirmado,
+    status: aluno.pagamentoConfirmado ? 'PAID' : 'PENDING'
+  });
+}));
+
+// Middleware para tratamento de erros
+app.use((err, req, res, next) => {
+  console.error('🔥 ERRO:', err);
+  
+  res.status(500).json({ 
+    success: false, 
+    message: 'Erro interno no servidor',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 const PORT = process.env.PORT || 3000;
