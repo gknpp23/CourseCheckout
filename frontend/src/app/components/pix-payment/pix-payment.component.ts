@@ -24,52 +24,20 @@ import { CommonModule } from '@angular/common';
   ]
 })
 export class PixPaymentComponent implements OnInit {
-  paymentData = {
-    pixKey: '00020126360014BR.GOV.BCB.PIX0136123e4567-e12b-12d1-a456-426655440000520400005303986540',
-    amount: 0,
-    dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-    beneficiary: 'CURSOS ONLINE LTDA',
-    document: '12.345.678/0001-99',
-    transactionId: ''
-  };
+  
 
-  loading = true;
-  qrCodeData = '';
-  enrollmentService: any;
 
   constructor(
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar, 
-    private clipboard: Clipboard
+    
   ) {}
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.paymentData.amount = params['amount'] || 0;
-      this.paymentData.transactionId = params['transactionId'] || '';
-      this.generatePixData();
-      this.loading = false;
-    });
+   
   }
 
-  generatePixData() {
-    // Formato básico de payload PIX
-    this.qrCodeData = `000201
-      26580014BR.GOV.BCB.PIX
-      0136${this.paymentData.pixKey}
-      52040000
-      5303986
-      54${this.paymentData.amount.toFixed(2)}
-      5802BR
-      5909${this.paymentData.beneficiary}
-      6008BRASILIA
-      62070503***
-      6304`;
-
-    // Remove espaços e quebras de linha
-    this.qrCodeData = this.qrCodeData.replace(/\s+/g, '');
-  }
-
+ 
+  /*
   copyToClipboard(text: string) {
     this.clipboard.copy(text);
     this.snackBar.open('Copiado para a área de transferência!', 'Fechar', {
@@ -77,7 +45,9 @@ export class PixPaymentComponent implements OnInit {
       panelClass: ['success-snackbar']
     });
   }
+    */
 
+  /*
   confirmPayment() {
     this.enrollmentService.confirmPayment(this.paymentData.transactionId)
       .subscribe({
@@ -96,4 +66,6 @@ export class PixPaymentComponent implements OnInit {
         }
       });
   }
+
+  */
 }

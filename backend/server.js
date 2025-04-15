@@ -57,7 +57,7 @@ const studentSchema = new mongoose.Schema({
   }
 });
 
-// Removido studentSchema.index() duplicado - já temos unique:true no campo email
+// Removido studentSchema.index() duplicado - já há unique:true no campo email
 
 const Student = mongoose.model('Student', studentSchema);
 
@@ -121,9 +121,7 @@ app.post('/api/inscricao', [
     });
   }
 
-  const chavePix = `pix-${Math.random().toString(36).substr(2, 9)}-${Date.now().toString(36)}`;
-  const valorCurso = 500.00; // Valor fixo ou poderia vir de um banco de dados
-  
+    
   const aluno = new Student({ 
     nome, 
     idade, 
@@ -138,22 +136,16 @@ app.post('/api/inscricao', [
   try {
     await sendEmail(email, 'Confirmação de Inscrição', `
       Olá ${nome}, 
-      Sua inscrição foi realizada com sucesso!
-      Chave PIX para pagamento: ${chavePix}
-      Valor: R$ ${valorCurso.toFixed(2)}
-      Beneficiário: Cursos Online Ltda
-      Prazo: 3 dias úteis
+      Sua inscrição foi realizada com sucesso!      
     `);
     console.log(`E-mail enviado para: ${email}`);
   } catch (emailError) {
     console.error('Erro ao enviar e-mail:', emailError);
-    // Não falha o processo por erro de email
+    
   }
 
   res.json({ 
     success: true, 
-    chavePix,
-    amount: valorCurso,
     transactionId: aluno._id,
     aluno: {
       id: aluno._id,
@@ -164,7 +156,7 @@ app.post('/api/inscricao', [
 }));
 
 // Rota para gerar PIX
-app.post('/api/pix', asyncHandler(async (req, res) => {
+/* app.post('/api/pix', asyncHandler(async (req, res) => {
   const { studentId, amount } = req.body;
   
   if (!studentId || !amount) {
@@ -190,7 +182,7 @@ app.post('/api/pix', asyncHandler(async (req, res) => {
     dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
   });
 }));
-
+*/
 // Rota para confirmar pagamento
 app.put('/api/confirm-payment/:transactionId', asyncHandler(async (req, res) => {
   const { transactionId } = req.params;
@@ -216,6 +208,7 @@ app.put('/api/confirm-payment/:transactionId', asyncHandler(async (req, res) => 
 }));
 
 // Rota para verificar status
+/*
 app.get('/api/payment-status/:transactionId', asyncHandler(async (req, res) => {
   const { transactionId } = req.params;
 
@@ -233,6 +226,7 @@ app.get('/api/payment-status/:transactionId', asyncHandler(async (req, res) => {
     status: aluno.pagamentoConfirmado ? 'PAID' : 'PENDING'
   });
 }));
+*/
 
 // Middleware para tratamento de erros
 app.use((err, req, res, next) => {
