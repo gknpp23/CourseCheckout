@@ -129,6 +129,7 @@ app.post('/api/inscricao', [
     celular,
     chavePix
   });
+  // teste
 
   await aluno.save();
 
