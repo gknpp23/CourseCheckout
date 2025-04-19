@@ -5,7 +5,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registration-form',
@@ -23,52 +22,53 @@ import { Router } from '@angular/router';
 export class RegistrationFormComponent {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
-  private router: Router = new Router();
+
   registrationForm = this.fb.group({
     nome: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     celular: ['', [Validators.required, Validators.pattern(/^[0-9]{11}$/)]],
     idade: ['', [Validators.required, Validators.min(18)]]
   });
+
   isLoading: boolean | undefined;
 
   onSubmit() {
     if (this.registrationForm.valid) {
       this.isLoading = true;
-  
-      console.log('Dados enviados para o backend:', this.registrationForm.value);
-  
+
+      const { nome, email, celular } = this.registrationForm.value;
+
+      console.log('Enviando dados para inscrição...');
+
+      // Primeiro envia os dados para inscrição
       this.http.post('http://localhost:3000/api/inscricao', this.registrationForm.value)
         .subscribe({
           next: (res: any) => {
-            console.log('Dados recebidos do backend:', res);
-  
-            this.http.post('http://localhost:3000/api/abacatepay', {
-              nome: res.aluno.nome,
-              email: res.aluno.email,
-              celular: res.aluno.celular,
-              taxId: '217.625.080-01' 
+            console.log('Inscrição salva com sucesso:', res);
+
+            // Depois chama o checkout
+            this.http.post<{ checkoutUrl: string }>('http://localhost:3000/api/checkout', {
+              nome,
+              email,
+              celular,
+              taxId: '21762508001' // Pode ser fixo ou vir de outro campo
             }).subscribe({
-              next: (payRes) => {
-                console.log('Pagamento realizado com sucesso:', payRes);
+              next: (res) => {
+                console.log('Checkout URL recebida:', res.checkoutUrl);
                 this.isLoading = false;
-                alert('Inscrição e pagamento realizados com sucesso!');
-                this.router.navigate(['/success']);
+                window.location.href = res.checkoutUrl; // Redireciona para o checkout
               },
-              error: (payErr) => {
+              error: (err) => {
                 this.isLoading = false;
-                alert('Erro ao enviar dados para o AbacatePay: ' + payErr.error?.message || 'Erro desconhecido');
+                alert('Erro no checkout: ' + (err.error?.message || 'Erro desconhecido'));
               }
             });
           },
-          error: (err: { error: { message: string; }; }) => {
+          error: (err) => {
             this.isLoading = false;
-            alert('Erro na inscrição: ' + err.error?.message || 'Erro desconhecido');
+            alert('Erro ao salvar inscrição: ' + (err.error?.message || 'Erro desconhecido'));
           }
         });
     }
   }
-  
-
-
 }
