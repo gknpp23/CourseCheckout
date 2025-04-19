@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const { body, validationResult } = require('express-validator');
 const { sendEmail } = require('./src/services/email.services');
+const axios = require('axios');
 
 const app = express();
 app.use(cors());
@@ -127,9 +128,10 @@ app.post('/api/inscricao', [
     idade, 
     email, 
     celular,
-    chavePix
+    
   });
   
+
 
   await aluno.save();
 
@@ -155,6 +157,34 @@ app.post('/api/inscricao', [
     }
   });
 }));
+
+// Rota para criar um cliente no AbacatePay
+app.post('/api/abacatepay', async (req, res) => {
+  try {
+    const { nome, email, celular, taxId } = req.body;
+
+    const response = await axios.post('https://api.abacatepay.com/v1/customer/create', {
+      nome,
+      email,
+      celular,
+      taxId
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.ABACATEPAY_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // 👇 Aqui você garante que vai mandar JSON pro frontend
+    console.log('Resposta da AbacatePay:', response.data);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Erro ao integrar com o AbacatePay:', error.response?.data || error.message);
+    res.status(500).json({ message: 'Erro ao processar o pagamento' });
+  }
+});
+
+
 
 // Rota para gerar PIX
 /* app.post('/api/pix', asyncHandler(async (req, res) => {
