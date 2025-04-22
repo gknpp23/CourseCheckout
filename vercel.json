@@ -1,15 +1,19 @@
 {
-
-    "rewrites": [
-  
-      {
-  
-        "source": "/(.*)",
-  
-        "destination": "/index.html"
-  
-      }
-  
-    ]
-  
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/angular"
+    },
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ]
+}
