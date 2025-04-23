@@ -1,15 +1,10 @@
 {
   "version": 2,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
   "builds": [
     {
       "src": "frontend/package.json",
-      "use": "@vercel/angular"
+      "use": "@vercel/angular",
+      "config": { "dist": "frontend/dist" }
     },
     {
       "src": "server.js",
@@ -17,6 +12,10 @@
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
     {
       "src": "/(.*)",
       "dest": "/frontend/$1"
