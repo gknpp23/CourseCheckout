@@ -4,21 +4,35 @@
     {
       "src": "frontend/package.json",
       "use": "@vercel/angular",
-      "config": { "dist": "frontend/dist" }
+      "config": {
+        "dist": "frontend/dist/frontend",
+        "server": "frontend/dist/frontend/server/main.js"
+      }
     },
     {
-      "src": "server.js",
+      "src": "backend/server.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server.js"
+      "dest": "/backend/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/$1"
+      "dest": "/frontend/$1",
+      "continue": true
+    },
+    {
+      "src": "/.*",
+      "dest": "/frontend/index.html"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/index.html"
     }
   ]
 }
