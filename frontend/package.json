@@ -4,7 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --prod",
+    "build": "ng build",
+  "build:vercel": "ng build --configuration=vercel && ng run frontend:server:vercel",
+  "serve:ssr": "node dist/frontend/server/main.js",
+  "dev:ssr": "ng run frontend:serve-ssr",
+  "prerender": "ng run frontend:prerender",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:frontend": "node dist/frontend/server/server.mjs"
