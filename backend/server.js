@@ -133,6 +133,39 @@ app.post('/api/checkout', async (req, res) => {
   }
 });
 
+app.post('/webhook/abacatepay', express.json(), async (req, res) => {
+  console.log('Requisição recebida no webhook');
+  try {
+    // Validação do webhook secret
+    const { webhookSecret } = req.query;
+
+    if (webhookSecret !== 'sapoha') {
+      return res.status(403).send('Acesso negado: Secret incorreto');
+    }
+
+    // Se o secret estiver correto, prossegue com o processamento
+    const event = req.body;
+    console.log('Evento recebido:', event);
+
+    if (event.type === 'billing.paid') {
+      const paymentData = event.data;
+
+      console.log('💰 Pagamento confirmado:', paymentData);
+
+      // Ações após o pagamento confirmado, como atualizar o status no banco de dados.
+      // Exemplo:
+      // await Student.updateOne({ chavePix: paymentData.customer.metadata.pixKey }, { pago: true });
+
+      res.status(200).send('Evento processado com sucesso');
+    } else {
+      res.status(400).send('Evento não tratado');
+    }
+  } catch (error) {
+    console.error('Erro no webhook:', error);
+    res.status(500).send('Erro no processamento do webhook');
+  }
+});
+
 
 
 // app.post('/api/abacatepay', async (req, res) => {
