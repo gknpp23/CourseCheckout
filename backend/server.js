@@ -21,7 +21,7 @@ const studentSchema = new mongoose.Schema({
   nome: { type: String, required: true, trim: true },
   idade: { type: Number, required: true, min: 1, max: 120 },
   email: { type: String, required: true, unique: true, trim: true, lowercase: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido'] },
+  match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido'] },
   celular: { type: String, required: true, trim: true },
   dataInscricao: { type: Date, default: Date.now },
   pagamentoConfirmado: { type: Boolean, default: false }
@@ -106,7 +106,7 @@ app.post('/api/checkout', async (req, res) => {
         }
       ],
       returnUrl: 'https://e9f6-187-94-205-75.ngrok-free.app/',
-      completionUrl: 'https://e9f6-187-94-205-75.ngrok-free.app/success',
+      completionUrl: 'https://099f-187-94-205-75.ngrok-free.app/success',
       customerId: customerId,
       customer: {
         name: nome,
@@ -133,38 +133,80 @@ app.post('/api/checkout', async (req, res) => {
   }
 });
 
-app.post('/webhook/abacatepay', express.json(), async (req, res) => {
-  console.log('Requisição recebida no webhook');
-  try {
-    // Validação do webhook secret
-    const { webhookSecret } = req.query;
+app.post("/webhook", express.json(), async (req, res) => {
+  console.log("📩 Requisição recebida no webhook");
 
-    if (webhookSecret !== 'sapoha') {
-      return res.status(403).send('Acesso negado: Secret incorreto');
+  try {
+    const secretRecebida = req.query.secret || req.query.webhookSecret;
+    const SECRET_ESPERADA = process.env.WEBHOOK_SECRET || 'sapoha'; // valor padrão de fallback
+
+    // Verifica se o segredo recebido é válido
+    if (secretRecebida !== SECRET_ESPERADA) {
+      console.warn("❌ Secret inválida recebida:", secretRecebida);
+      return res.status(403).send("Acesso negado: Secret incorreta.");
     }
 
-    // Se o secret estiver correto, prossegue com o processamento
     const event = req.body;
-    console.log('Evento recebido:', event);
+    console.log("📦 Evento recebido:", JSON.stringify(event, null, 2));
 
-    if (event.type === 'billing.paid') {
-      const paymentData = event.data;
+    const eventType = event?.event;
+    const customer = event?.data?.billing?.customer || event?.data?.customer;
+    const metadata = customer?.metadata || {};
 
-      console.log('💰 Pagamento confirmado:', paymentData);
+    const email = metadata?.email;
 
-      // Ações após o pagamento confirmado, como atualizar o status no banco de dados.
-      // Exemplo:
-      // await Student.updateOne({ chavePix: paymentData.customer.metadata.pixKey }, { pago: true });
+    if (!email) {
+      console.error("❌ Email do cliente ausente nos metadados.");
+      return res.status(400).send("Email não encontrado.");
+    }
 
-      res.status(200).send('Evento processado com sucesso');
+    if (eventType === 'billing.paid') {
+      // Atualiza o aluno no banco de dados
+      const alunoAtualizado = await Student.findOneAndUpdate(
+        { email },
+        {
+          pagamentoConfirmado: true,
+          dataInscricao: new Date(),
+        },
+        { new: true }
+      );
+
+      if (!alunoAtualizado) {
+        console.warn("⚠️ Aluno não encontrado para o e-mail:", email);
+        return res.status(404).send("Aluno não encontrado.");
+      }
+
+      // Envia e-mail de confirmação
+      await sendEmail(
+        email,
+        "Confirmação de Inscrição 🚀",
+        `
+          <p>Olá <strong>${alunoAtualizado.nome}</strong>,</p>
+
+          <p>Seu pagamento foi aprovado e sua vaga no curso tá garantida! 👊</p>
+
+          <p>Agora é só aguardar os próximos passos que vamos te enviar por aqui mesmo.</p>
+
+          <p>Enquanto isso, prepare-se para uma jornada incrível de aprendizado.</p>
+
+          <p>Qualquer dúvida, é só dar um alô.</p>
+
+          <p>Abraços,<br>Equipe <strong>Fábrica do Liso</strong> 🤓</p>
+        `
+      );
+
+      console.log("✅ Pagamento confirmado e aluno atualizado:", alunoAtualizado);
+      return res.status(200).send("Pagamento processado com sucesso.");
     } else {
-      res.status(400).send('Evento não tratado');
+      console.info("ℹ️ Evento ignorado:", eventType);
+      return res.status(200).send("Evento não tratado.");
     }
   } catch (error) {
-    console.error('Erro no webhook:', error);
-    res.status(500).send('Erro no processamento do webhook');
+    console.error("💥 Erro no processamento do webhook:", error);
+    return res.status(500).send("Erro interno.");
   }
 });
+
 
 
 
