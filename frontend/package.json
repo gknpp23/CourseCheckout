@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --configuration production",
     "build:vercel": "ng build --configuration=vercel && ng run frontend:server:vercel",
     "serve:ssr": "node dist/frontend/server/main.js",
     "dev:ssr": "ng run frontend:serve-ssr",
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.4",
-    "@angular/cli": "^19.2.8",
+    "@angular/cli": "^19.2.9",
     "@angular/compiler-cli": "^19.2.0",
     "@types/express": "^4.17.17",
     "@types/jasmine": "~5.1.0",
