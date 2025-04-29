@@ -1,19 +1,106 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles */
 @use '@angular/material' as mat;
 
-body {
+body, app-root {
   margin: 0;
+  padding: 0 !important;
   font-family: Roboto, sans-serif;
-  padding: 20px;
+  background-color: #f1cdc3;
 }
 
+/* Toolbar */
+mat-toolbar {
+  background-color: #FBF6E1 !important;
+}
+
+.mat-toolbar-single-row {
+  justify-content: center;
+  color: #af4c7d !important;
+}
+
+/* Card */
 mat-card {
   max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 0.5rem auto;
+  padding: 2rem 1.25rem 1.25rem 1.25rem;
+  background-color: #FBF6E1 !important;
 }
 
+.mat-mdc-card-header {
+  justify-content: center !important;
+  align-items: center !important;
+  color: #CE806D !important;
+  padding: 0 0 20px 0 !important;
+}
+
+/* Form Fields */
 mat-form-field {
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
+
+mat-form-field input {
+  color: #4b3833 !important;
+  font-size: 16px;
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Form Field Custom States */
+:root {
+  --mdc-filled-text-field-container-color: #e99c8677 !important;
+  --mdc-filled-text-field-input-text-color: #CE806D;
+  // --mdc-filled-text-field-caret-color: #af4c7d;
+}
+
+/* Form field focus styles */
+// ::ng-deep mat-form-field.mat-focused .mat-form-field-infix .mat-label {
+//   color: #af4c7d !important;
+// }
+
+// ::ng-deep mat-form-field.mat-focused .mat-form-field-ripple {
+//   background-color: #FF5722 !important;
+// }
+
+// ::ng-deep mat-form-field label {
+//   color: #666;
+// }
+
+// ::ng-deep mat-form-field.mat-focused label {
+//   color: #ff5722 !important;
+// }
+
+/* Additional focus styles */
+// ::ng-deep .mat-mdc-form-field-focus-overlay,
+// ::ng-deep .mat-mdc-form-field-ripple,
+// ::ng-deep .mat-mdc-form-field.mat-focused .mdc-floating-label {
+//   background-color: #FF5722 !important;
+//   color: #FF5722 !important;
+// }
+
+/* Button */
+.mdc-button {
+  background-color: #f1cdc3 !important;
+  color: #af4c7d !important;
+  display: flex !important;
+  margin: 0 auto;
+}
+
+/* Example of custom theme (commented) */
+// $my-primary: mat.define-palette(mat.$indigo-palette, 500);
+// $my-accent: mat.define-palette(mat.$pink-palette, 500, 300, 700);
+// $my-warn: mat.define-palette(mat.$red-palette);
+
+// $my-theme: mat.define-light-theme((
+//   color: (
+//     primary: $my-primary,
+//     accent: $my-accent,
+//     warn: $my-warn,
+//   )
+// ));
+
+// @include mat.all-component-themes($my-theme);
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
