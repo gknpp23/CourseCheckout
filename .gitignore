@@ -1,5 +1,5 @@
-
-
+# Ignorar node_modules (dependências do Node.js e Angular)
+node_modules/
 # Ignorar arquivos de ambiente local (como .env)
 .env
 .env.local
