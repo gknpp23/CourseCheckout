@@ -2,36 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/frontend/browser",
-        "installCommand": "cd frontend && npm install",
-        "buildCommand": "cd frontend && npm run build -- --configuration=production"
-      }
-    },
-    {
-      "src": "frontend/dist/frontend/server/main.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
+      "src": "angular.json",
+      "use": "@vercel/angular"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/backend/server.js"
-    },
-    {
-      "src": "/.*",
-      "dest": "/frontend/dist/frontend/server/main.js"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/frontend/dist/frontend/browser/$1",
-      "continue": true
+      "dest": "/index.html"
     }
   ]
 }
