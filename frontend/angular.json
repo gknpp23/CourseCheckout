@@ -31,15 +31,20 @@
                 "input": "public",
                 "output": "/"
               },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "/assets/"
+              },
               "src/manifest.webmanifest"
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/cyan-orange.css",
+              "@angular/material/prebuilt-themes/rose-red.css",
               "src/styles.scss"
             ],
             "scripts": [],
             "server": "src/main.server.ts",
-            "prerender": false,  // Mudado para false para Vercel
+            "prerender": false,
             "ssr": {
               "entry": "src/server.ts"
             },
@@ -71,7 +76,6 @@
               "optimization": true,
               "aot": true,
               "extractLicenses": true,
-              "buildOptimizer": true,
               "serviceWorker": false
             },
             "development": {
@@ -80,11 +84,8 @@
               "sourceMap": true
             },
             "vercel": {
-              "extends": "production",
               "outputPath": "dist/frontend/browser",
-              "server": {
-                "outputPath": "dist/frontend/server"
-              },
+              "server": "dist/frontend/server",
               "ssr": {
                 "entry": "src/server.ts"
               }
@@ -117,15 +118,13 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "frontend:build:production",
-              "serverTarget": "frontend:server:production"
+              "buildTarget": "frontend:build:production"
             },
             "development": {
               "buildTarget": "frontend:build:development"
             },
             "vercel": {
-              "buildTarget": "frontend:build:vercel",
-              "serverTarget": "frontend:server:production"
+              "buildTarget": "frontend:build:vercel"
             }
           },
           "defaultConfiguration": "development"
@@ -134,11 +133,11 @@
           "builder": "@angular-devkit/build-angular:ssr-dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "frontend:build:production",
+              "browserTarget": "frontend:build:production",
               "serverTarget": "frontend:server:production"
             },
             "development": {
-              "buildTarget": "frontend:build:development",
+              "browserTarget": "frontend:build:development",
               "serverTarget": "frontend:server:development"
             }
           }
@@ -152,7 +151,7 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "frontend:build:production",
+              "browserTarget": "frontend:build:production",
               "serverTarget": "frontend:server:production"
             }
           }
@@ -161,7 +160,6 @@
     }
   },
   "cli": {
-    "analytics": false,
-    "defaultCollection": "@schematics/angular"
+    "analytics": false
   }
 }
