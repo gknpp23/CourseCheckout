@@ -5,7 +5,7 @@
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist/frontend/browser"
+        "distDir": "frontend/dist/browser"
       }
     }
   ],
@@ -15,13 +15,13 @@
     },
     {
       "src": "/.*",
-      "dest": "/index.csr.html"
+      "dest": "/browser/index.csr.html"
     }
   ],
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/frontend/$1"
+      "destination": "/frontend/dist/browser/browser/$1"
     }
   ]
 }
