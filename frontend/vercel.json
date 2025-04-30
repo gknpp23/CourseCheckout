@@ -5,11 +5,25 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist/frontend/browser"
+        "distDir": "dist/frontend/browser",
+        "cleanUrls": true
       }
     }
   ],
   "routes": [
+    {
+      "src": "/(.*\\.js|.*\\.css)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "Content-Type": "text/javascript" // Força MIME type correto
+      }
+    },
+    {
+      "src": "/assets/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
