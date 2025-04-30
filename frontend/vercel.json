@@ -4,7 +4,9 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist/frontend/browser" }
+      "config": {
+        "distDir": "dist/frontend/browser"
+      }
     }
   ],
   "routes": [
