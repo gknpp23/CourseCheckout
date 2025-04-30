@@ -12,10 +12,22 @@
   ],
   "routes": [
     {
-      "src": "/(.*\\.js|.*\\.css)",
+      "src": "/_next/static/(.*)",
       "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "Content-Type": "text/javascript"
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*\\.(css|js))",
+      "headers": {
+        "Content-Type": "$1.css?text/css:$1.js?text/javascript",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*\\.(ico|png|jpg|jpeg|svg|webp|gif))",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
       }
     },
     {
@@ -26,7 +38,25 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
     }
   ]
 }
