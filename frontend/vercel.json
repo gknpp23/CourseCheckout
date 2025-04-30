@@ -5,58 +5,35 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist/frontend/browser",
-        "cleanUrls": true
+        "distDir": "dist/frontend/browser"
       }
     }
   ],
   "routes": [
     {
-      "src": "/_next/static/(.*)",
+      "src": "/styles.([a-f0-9]{8,20})\\.css",
       "headers": {
+        "Content-Type": "text/css",
         "Cache-Control": "public, max-age=31536000, immutable"
       }
     },
     {
-      "src": "/(.*\\.(css|js))",
+      "src": "/favicon.ico",
       "headers": {
-        "Content-Type": "$1.css?text/css:$1.js?text/javascript",
-        "Cache-Control": "public, max-age=31536000, immutable"
+        "Content-Type": "image/x-icon",
+        "Cache-Control": "public, max-age=604800"
       }
     },
     {
-      "src": "/(.*\\.(ico|png|jpg|jpeg|svg|webp|gif))",
+      "src": "/(.*\\.js)",
       "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/assets/(.*)",
-      "headers": {
+        "Content-Type": "text/javascript",
         "Cache-Control": "public, max-age=31536000, immutable"
       }
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html",
-      "headers": {
-        "Cache-Control": "no-cache, no-store, must-revalidate"
-      }
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        }
-      ]
+      "dest": "/index.html"
     }
   ]
 }
