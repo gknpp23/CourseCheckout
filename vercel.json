@@ -24,4 +24,5 @@
       "destination": "/frontend/dist/browser/browser/$1"
     }
   ]
+  
 }
