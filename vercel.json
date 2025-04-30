@@ -17,5 +17,11 @@
       "src": "/.*",
       "dest": "/index.csr.html"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
+    }
   ]
 }
