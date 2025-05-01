@@ -1,0 +1,9 @@
+{
+    "build": {
+      "nixpacks": {
+        "config": {
+          "nodeVersion": "18"
+        }
+      }
+    }
+}
