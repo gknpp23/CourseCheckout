@@ -23,8 +23,8 @@
     "glob": "9.3.5",
     "helmet": "^7.1.0",
     "lru-cache": "7.18.3",
-    "mongodb": "6.4.0",
-    "mongoose": "^8.14.1",
+    "mongodb": "5.7.0",
+    "mongoose": "8.0.3",
     "nodemailer": "^6.10.0",
     "rimraf": "6.0.1",
     "superagent": "^10.2.0"

@@ -1,3 +1,5 @@
+process.env.MONGODB_DISABLE_SASL_PREP = "1";
+process.env.MONGODB_DRIVER_PATH = require.resolve('mongodb');
 require('dotenv').config();
 const express = require('express');
 const { json, urlencoded } = express;
