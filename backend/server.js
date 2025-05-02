@@ -25,20 +25,39 @@ const apiLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again later'
 });
 
+// Fallback para saslprep (autenticação mais segura, mas opcional)
+try { 
+  require('@mongodb-js/saslprep'); 
+} catch (e) { 
+  // Ignora se não estiver disponível
+  console.log('ℹ️ saslprep não está disponível - usando autenticação padrão');
+}
+
 // Configuração global do Mongoose
 mongoose.set('strictQuery', true);
 
-// Conexão com opções de segurança
-mongoose.connect(process.env.MONGO_URI, {
-  authMechanism: 'SCRAM-SHA-1',       // Mecanismo de autenticação mais compatível
-  ssl: true,                          // Habilita SSL
-  tlsAllowInvalidCertificates: false, // Exige certificados válidos
-  retryWrites: true,                  // Mantém sua configuração original
-  w: 'majority'                       // Mantém sua configuração original
-})
-.then(() => console.log('✅ Conectado ao MongoDB'))
-.catch(err => console.error('❌ Erro no MongoDB:', err));
+// Conexão com opções de segurança e retry
+const connectWithRetry = () => {
+  mongoose.connect(process.env.MONGO_URI, {
+    authMechanism: 'SCRAM-SHA-1',       // Mecanismo de autenticação mais compatível
+    ssl: true,                          // Habilita SSL
+    tlsAllowInvalidCertificates: false, // Exige certificados válidos
+    retryWrites: true,                  // Retry em falhas de escrita
+    w: 'majority',                      // Confirma escrita na maioria dos nós
+    retryReads: true                    // Adicionei também retry para leituras
+  })
+  .then(() => console.log('✅ Conectado ao MongoDB'))
+  .catch(err => {
+    console.error('❌ Erro na conexão com MongoDB:', err.message);
+    console.log('⏳ Tentando reconexão em 5 segundos...');
+    
+    // Tentativa de fallback após 5 segundos
+    setTimeout(connectWithRetry, 5000);
+  });
+};
 
+// Inicia a tentativa de conexão
+connectWithRetry();
 // Modelos
 const studentSchema = new Schema({
   nome: { type: String, required: true, trim: true },

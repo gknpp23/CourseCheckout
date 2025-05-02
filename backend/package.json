@@ -7,6 +7,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "prod": "npm install --omit=dev --no-audit --prefer-offline",
+    "postinstall": "node -e \"try{require('fs').unlinkSync('node_modules/@mongodb-js/saslprep/package.json')}catch(e){}\"",
     "clean": "rm -rf node_modules package-lock.json"
   },
   "keywords": [
@@ -29,8 +30,8 @@
     "glob": "9.3.5",
     "helmet": "^7.1.0",
     "lru-cache": "7.18.3",
-    "mongodb": "^6.15.0",
-    "mongoose": "^8.14.1",
+    "mongodb": "6.4.0",
+    "mongoose": "8.14.1",
     "nodemailer": "^6.10.0",
     "rimraf": "6.0.1",
     "superagent": "^10.2.0"
