@@ -39,7 +39,7 @@ mongoose.set('strictQuery', true);
 // Conexão com opções de segurança e retry
 const connectWithRetry = () => {
   mongoose.connect(process.env.MONGO_URI, {
-    authMechanism: 'SCRAM-SHA-1',       // Mecanismo de autenticação mais compatível
+    authMechanism: 'DEFAULT',       // Mecanismo de autenticação mais compatível
     ssl: true,                          // Habilita SSL
     tlsAllowInvalidCertificates: false, // Exige certificados válidos
     retryWrites: true,                  // Retry em falhas de escrita
