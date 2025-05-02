@@ -24,7 +24,7 @@ const apiLimiter = rateLimit({
   max: 100, // limite de 100 requisições por IP
   message: 'Too many requests from this IP, please try again later'
 });
-
+process.env.MONGODB_DRIVER_MODULE_PATH = 'node_modules/mongodb/lib';
 process.env.MONGODB_SCRAM_SHA_1_DISABLE_SASL_PREP = "1";
 // Fallback para saslprep (autenticação mais segura, mas opcional)
 // try { 
