@@ -25,13 +25,14 @@ const apiLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again later'
 });
 
+process.env.MONGODB_SCRAM_SHA_1_DISABLE_SASL_PREP = "1";
 // Fallback para saslprep (autenticação mais segura, mas opcional)
-try { 
-  require('@mongodb-js/saslprep'); 
-} catch (e) { 
-  // Ignora se não estiver disponível
-  console.log('ℹ️ saslprep não está disponível - usando autenticação padrão');
-}
+// try { 
+//   require('@mongodb-js/saslprep'); 
+// } catch (e) { 
+//   // Ignora se não estiver disponível
+//   console.log('ℹ️ saslprep não está disponível - usando autenticação padrão');
+// }
 
 // Configuração global do Mongoose
 mongoose.set('strictQuery', true);
