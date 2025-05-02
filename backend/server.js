@@ -1,10 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const { json, urlencoded } = express;
+const { set, connect, Schema, model } = require('mongoose');
 const cors = require('cors');
 const { body, validationResult } = require('express-validator');
 const { sendEmail } = require('./src/services/email.services');
-const axios = require('axios');
+const { post } = require('axios');
 const rateLimit = require('express-rate-limit');
 
 // Configurações iniciais
@@ -13,8 +14,8 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 
 // Rate Limiting para APIs públicas
 const apiLimiter = rateLimit({
@@ -24,13 +25,13 @@ const apiLimiter = rateLimit({
 });
 
 // Conexão com MongoDB
-mongoose.set('strictQuery', true);
-mongoose.connect(process.env.MONGO_URI)
+set('strictQuery', true);
+connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Conectado ao MongoDB'))
   .catch(err => console.error('❌ Erro no MongoDB:', err));
 
 // Modelos
-const studentSchema = new mongoose.Schema({
+const studentSchema = new Schema({
   nome: { type: String, required: true, trim: true },
   idade: { type: Number, required: true, min: 1, max: 120 },
   email: { 
@@ -47,7 +48,7 @@ const studentSchema = new mongoose.Schema({
   customerId: { type: String } // Adicionado para armazenar ID do cliente no gateway de pagamento
 });
 
-const Student = mongoose.model('Student', studentSchema);
+const Student = model('Student', studentSchema);
 
 // Utilitários
 const asyncHandler = (fn) => (req, res, next) => {
@@ -117,7 +118,7 @@ app.post('/api/inscricao', [
 // Integração com Gateway de Pagamento
 const createAbacatePayCustomer = async (customerData) => {
   try {
-    const response = await axios.post('https://api.abacatepay.com/v1/customer/create', customerData, {
+    const response = await post('https://api.abacatepay.com/v1/customer/create', customerData, {
       headers: {
         'Authorization': `Bearer ${process.env.ABACATEPAY_API_KEY}`,
         'Content-Type': 'application/json'
@@ -132,7 +133,7 @@ const createAbacatePayCustomer = async (customerData) => {
 
 const createAbacatePayBilling = async (billingData) => {
   try {
-    const response = await axios.post('https://api.abacatepay.com/v1/billing/create', billingData, {
+    const response = await post('https://api.abacatepay.com/v1/billing/create', billingData, {
       headers: {
         'Authorization': `Bearer ${process.env.ABACATEPAY_API_KEY}`,
         'Content-Type': 'application/json'
@@ -204,7 +205,7 @@ app.post('/api/checkout', asyncHandler(async (req, res) => {
 }));
 
 // Webhook de Pagamento
-app.post("/webhook", express.json(), asyncHandler(async (req, res) => {
+app.post("/webhook", json(), asyncHandler(async (req, res) => {
   console.log("📩 Requisição recebida no webhook");
 
   const secretRecebida = req.query.secret || req.headers['x-webhook-secret'];
