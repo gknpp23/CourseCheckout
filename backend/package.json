@@ -19,6 +19,7 @@
   "license": "ISC",
   "description": "API Server para Aplicação Fábrica do Liso",
   "dependencies": {
+    "@mongodb-js/saslprep": "^1.2.2",
     "axios": "^1.8.4",
     "body-parser": "^1.20.3",
     "compression": "^1.7.4",

@@ -58,6 +58,7 @@ const connectWithRetry = () => {
 
 // Inicia a tentativa de conexão
 connectWithRetry();
+
 // Modelos
 const studentSchema = new Schema({
   nome: { type: String, required: true, trim: true },
