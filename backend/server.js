@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { json, urlencoded } = express;
 const { set, connect, Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const { body, validationResult } = require('express-validator');
 const { sendEmail } = require('./src/services/email.services');
@@ -24,11 +25,19 @@ const apiLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again later'
 });
 
-// Conexão com MongoDB
-set('strictQuery', true);
-connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ Conectado ao MongoDB'))
-  .catch(err => console.error('❌ Erro no MongoDB:', err));
+// Configuração global do Mongoose
+mongoose.set('strictQuery', true);
+
+// Conexão com opções de segurança
+mongoose.connect(process.env.MONGO_URI, {
+  authMechanism: 'SCRAM-SHA-1',       // Mecanismo de autenticação mais compatível
+  ssl: true,                          // Habilita SSL
+  tlsAllowInvalidCertificates: false, // Exige certificados válidos
+  retryWrites: true,                  // Mantém sua configuração original
+  w: 'majority'                       // Mantém sua configuração original
+})
+.then(() => console.log('✅ Conectado ao MongoDB'))
+.catch(err => console.error('❌ Erro no MongoDB:', err));
 
 // Modelos
 const studentSchema = new Schema({
