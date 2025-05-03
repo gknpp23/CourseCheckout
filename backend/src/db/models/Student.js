@@ -1,0 +1,37 @@
+// // models/Student.js
+// const mongoose = require('mongoose');
+
+// const studentSchema = new mongoose.Schema({
+//   nome: { type: String, required: true },
+//   idade: { type: Number, required: true },
+//   email: { type: String, required: true, unique: true },
+//   celular: { type: String, required: true },
+//   pago: { type: Boolean, default: false },
+//   dataPagamento: { type: Date },
+//   valorPago: { type: Number }
+// }, { timestamps: true });
+
+// module.exports = mongoose.model('Student', studentSchema);
+
+const { Schema, model } = require('mongoose');
+
+const studentSchema = new Schema({
+  nome: { type: String, required: true, trim: true },
+  idade: { type: Number, required: true, min: 1, max: 120 },
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true, 
+    trim: true, 
+    lowercase: true,
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido'] 
+  },
+  celular: { type: String, required: true, trim: true },
+  dataInscricao: { type: Date, default: Date.now },
+  pagamentoConfirmado: { type: Boolean, default: false },
+  customerId: { type: String },
+  transactionId: { type: String },
+  statusPagamento: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
+}, { timestamps: true });
+
+module.exports = model('Student', studentSchema);
