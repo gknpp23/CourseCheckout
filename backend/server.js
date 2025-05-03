@@ -26,41 +26,70 @@ const apiLimiter = rateLimit({
   max: 100, // limite de 100 requisições por IP
   message: 'Too many requests from this IP, please try again later'
 });
-process.env.MONGODB_DRIVER_MODULE_PATH = 'node_modules/mongodb/lib';
 process.env.MONGODB_SCRAM_SHA_1_DISABLE_SASL_PREP = "1";
-// Fallback para saslprep (autenticação mais segura, mas opcional)
-// try { 
-//   require('@mongodb-js/saslprep'); 
-// } catch (e) { 
-//   // Ignora se não estiver disponível
-//   console.log('ℹ️ saslprep não está disponível - usando autenticação padrão');
-// }
-
-// Configuração global do Mongoose
 mongoose.set('strictQuery', true);
 
-// Conexão com opções de segurança e retry
-const connectWithRetry = () => {
-  mongoose.connect(process.env.MONGO_URI, {
-    authMechanism: 'DEFAULT',       // Mecanismo de autenticação mais compatível
-    ssl: true,                          // Habilita SSL
-    tlsAllowInvalidCertificates: false, // Exige certificados válidos
-    retryWrites: true,                  // Retry em falhas de escrita
-    w: 'majority',                      // Confirma escrita na maioria dos nós
-    retryReads: true                    // Adicionei também retry para leituras
-  })
-  .then(() => console.log('✅ Conectado ao MongoDB'))
-  .catch(err => {
-    console.error('❌ Erro na conexão com MongoDB:', err.message);
-    console.log('⏳ Tentando reconexão em 5 segundos...');
+
+const RETRY_DELAY = 5000; // 5 segundos entre tentativas
+const MAX_RETRIES = 5;    // Máximo de tentativas
+
+let retryCount = 0;
+
+const connectWithRetry = async () => {
+  try {
+    // Usa MONGO_URL do Railway ou MONGO_URI como fallback
+    const connectionString = process.env.MONGO_URL || process.env.MONGO_URI;
     
-    // Tentativa de fallback após 5 segundos
-    setTimeout(connectWithRetry, 5000);
-  });
+    await mongoose.connect(connectionString, {
+      // Configurações para MongoDB Atlas
+      ssl: true,
+      tlsAllowInvalidCertificates: false,
+      
+      // Configurações para Railway MongoDB
+      authMechanism: process.env.MONGO_URL ? 'DEFAULT' : 'SCRAM-SHA-1',
+      retryWrites: true,
+      w: 'majority',
+      retryReads: true,
+      
+      // Timeouts otimizados
+      serverSelectionTimeoutMS: 3000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 3000,
+      
+      // Força IPv4 se estiver no Railway
+      family: process.env.MONGO_URL ? 4 : undefined
+    });
+
+    console.log('✅ Conectado ao MongoDB');
+    retryCount = 0; // Reseta o contador após conexão bem-sucedida
+    
+  } catch (err) {
+    retryCount++;
+    console.error(`❌ Erro na conexão (Tentativa ${retryCount}/${MAX_RETRIES}):`, err.message);
+    
+    if (retryCount < MAX_RETRIES) {
+      console.log(`⏳ Tentando reconexão em ${RETRY_DELAY/1000} segundos...`);
+      setTimeout(connectWithRetry, RETRY_DELAY);
+    } else {
+      console.error('🔥 Falha crítica: Máximo de tentativas alcançado');
+      process.exit(1);
+    }
+  }
 };
 
-// Inicia a tentativa de conexão
+// Handlers adicionais para monitoramento
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ Conexão com MongoDB perdida');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('🔁 Conexão com MongoDB reestabelecida');
+});
+
+// Inicia a conexão
 connectWithRetry();
+
+module.exports = mongoose;
 
 // Modelos
 const studentSchema = new Schema({
