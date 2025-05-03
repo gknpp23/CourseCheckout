@@ -41,13 +41,13 @@ export class RegistrationFormComponent {
       console.log('Enviando dados para inscrição...');
 
       // Primeiro envia os dados para inscrição
-      this.http.post('http://localhost:3000/api/inscricao', this.registrationForm.value)
+      this.http.post('https://coursecheckout-backend-production.up.railway.app//api/inscricao', this.registrationForm.value)
         .subscribe({
           next: (res: any) => {
             console.log('Inscrição salva com sucesso:', res);
 
             // Depois chama o checkout
-            this.http.post<{ checkoutUrl: string }>('http://localhost:3000/api/checkout', {
+            this.http.post<{ checkoutUrl: string }>('https://coursecheckout-backend-production.up.railway.app//api/checkout', {
               nome,
               email,
               celular,
