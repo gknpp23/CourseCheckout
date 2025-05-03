@@ -36,7 +36,7 @@ export class RegistrationFormComponent {
     if (this.registrationForm.valid) {
       this.isLoading = true;
 
-      const { nome, email, celular } = this.registrationForm.value;
+      const { nome, email, celular, idade } = this.registrationForm.value;
 
       console.log('Enviando dados para inscrição...');
 
@@ -51,6 +51,7 @@ export class RegistrationFormComponent {
               nome,
               email,
               celular,
+              idade,
               taxId: '21762508001' // Pode ser fixo ou vir de outro campo
             }).subscribe({
               next: (res) => {
