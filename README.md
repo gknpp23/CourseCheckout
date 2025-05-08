@@ -24,7 +24,7 @@ Desenvolvido com **Angular** no frontend e **Node.js** no backend, o CourseCheck
 
 ### Como Usar:
 1. Clone o repositório.
-2. Configure o backend com Node.js e MongoDB.
+2. Configure o backend ([Repositório Backend](https://github.com/gknpp23/CourseCheckout-Backend)) com Node.js e MongoDB.
 3. Configure o frontend com Angular.
 4. Siga as instruções no README para integrar o Pix, e-mail e WhatsApp.
 5. Faça o deploy e comece a usar!
