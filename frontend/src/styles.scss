@@ -23,13 +23,13 @@ mat-card {
   max-width: 600px;
   margin: 0.5rem auto;
   padding: 2rem 1.25rem 1.25rem 1.25rem;
-  background-color: #FBF6E1 !important;
+  background-color: #fbe9de !important;
 }
 
 .mat-mdc-card-header {
   justify-content: center !important;
   align-items: center !important;
-  color: #CE806D !important;
+  
   padding: 0 0 20px 0 !important;
 }
 
@@ -39,13 +39,14 @@ mat-form-field {
   margin-bottom: 16px;
 }
 
-mat-form-field input {
-  color: #4b3833 !important;
-  font-size: 16px;
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-radius: 4px;
-}
+// mat-form-field input {
+//   color: #4b3833 !important;
+//   font-size: 16px;
+//   background-color: #f5f5f5;
+//   padding: 10px;
+//   border-radius: 4px;
+ 
+// }
 
 /* Form Field Custom States */
 :root {

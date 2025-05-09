@@ -1,0 +1,61 @@
+mat-card {
+    padding-top: 0px;
+    background-color: #fbe9de !important;
+    margin: auto auto !important;
+  }
+  
+  mat-card-title {
+    color: #823636 !important;
+    font-family: 'Roboto' !important;
+    font-weight: bolder !important;
+    font-size: 24px;
+  }
+  
+  mat-card-content form {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  mat-form-field {
+    width: 75% !important;
+    min-height: 15px; /* Altura flexível */
+    padding: 5px !important;
+    margin-bottom: 16px !important; /* Espaçamento maior */
+    border-radius: 25px !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    overflow: hidden; /* Opcional: para bordas arredondadas */
+  }
+  
+  /* Ajuste para mensagens de erro */
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    height: auto !important;
+    min-height: 20px;
+    margin-top: 4px !important;
+  }
+  
+  /* Estilo da linha inferior */
+  ::ng-deep .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-line-ripple::before {
+    border-bottom-color: #823636 !important;
+  }
+  
+  button {
+    width: 70%;
+    height: 48px;
+    background: #e98985 !important;
+    color: #FFFFFF !important;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 20px;
+  }
