@@ -56,12 +56,14 @@
   
         <!-- Botão de Submit -->
         <button mat-raised-button 
-                color="primary" 
-                type="submit" 
-                [disabled]="registrationForm.invalid"
-                class="submit-button">
-          Gerar Pagamento Pix
-        </button>
+        class="pix-button"
+        [disabled]="registrationForm.invalid"
+        (click)="onSubmit()">
+  <div class="button-content">
+    <img src="assets/pix.svg" class="pix-icon" alt="PIX">
+    <span>GERAR PAGAMENTO PIX</span>
+  </div>
+</button>
       </form>
     </mat-card-content>
   </mat-card>
