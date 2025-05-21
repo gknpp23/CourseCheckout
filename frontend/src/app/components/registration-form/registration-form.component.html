@@ -15,11 +15,27 @@
             Nome é obrigatório
           </mat-error>
         </mat-form-field>
-  
+
+        <!-- Campo CPF-->
+        <mat-form-field appearance="fill" class="clean-field">
+          <mat-label>CPF</mat-label>
+          <input matInput formControlName="cpf" 
+                required
+                placeholder="000.000.000-00"
+                (input)="formatarCPF($event)">
+          <mat-error *ngIf="registrationForm.get('cpf')?.hasError('required')">
+            CPF é obrigatório
+          </mat-error>
+          <mat-error *ngIf="registrationForm.get('cpf')?.hasError('cpfInvalido')">
+            CPF inválido
+          </mat-error>
+        </mat-form-field>
+
+        
         <!-- Campo E-mail -->
         <mat-form-field appearance="fill">
           <mat-label>E-mail</mat-label>
-          <input matInput formControlName="email" type="email" required>
+          <input matInput formControlName="email" type="email" required placeholder="email@example.com">
           <mat-error *ngIf="registrationForm.get('email')?.hasError('required')">
             E-mail é obrigatório
           </mat-error>
@@ -31,8 +47,7 @@
         <!-- Campo Celular -->
         <mat-form-field appearance="fill">
           <mat-label>Celular (com DDD)</mat-label>
-          <input matInput formControlName="celular" required>
-          <mat-hint>Ex: 11987654321</mat-hint>
+          <input matInput formControlName="celular" (input)="formatarCelular($event)" required placeholder="(00) 00000-0000" (keypress)="bloquearNaoNumericos($event)" >
           <mat-error *ngIf="registrationForm.get('celular')?.hasError('required')">
             Celular é obrigatório
           </mat-error>
@@ -44,8 +59,8 @@
         <!-- Campo Idade -->
         <mat-form-field appearance="fill">
             <mat-label>Idade</mat-label>
-            <input matInput formControlName="idade" required>
-            <mat-hint>Ex: 21</mat-hint>
+            <input matInput formControlName="idade" required (keypress)="bloquearNaoNumericos($event)">
+            
             <mat-error *ngIf="registrationForm.get('idade')?.hasError('required')">
               Idade é obrigatório
             </mat-error>

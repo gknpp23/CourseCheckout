@@ -5,7 +5,7 @@ mat-card {
   }
   
   mat-card-title {
-    color: #823636 !important;
+    color: #c75b5b !important;
     font-family: 'Roboto' !important;
     font-weight: bolder !important;
     font-size: 24px;
@@ -19,7 +19,7 @@ mat-card {
   
   mat-form-field {
     width: 85% !important;
-    min-height: 35px; /* Altura flexível */
+    max-height: 80px !important; /* Altura flexível */
     padding: 5px !important;
     color:#823636;
     margin-bottom: -5px !important; /* Espaçamento maior */
@@ -80,3 +80,4 @@ mat-card {
     margin: 0;
   }
 }
+
