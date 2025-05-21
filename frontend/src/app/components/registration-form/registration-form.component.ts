@@ -25,7 +25,7 @@ export class RegistrationFormComponent {
 
   registrationForm = this.fb.group({
     nome: ['', [Validators.required]],
-    cpf: ['', [Validators.required, this.cpfValidator()]], // Novo campo CPF
+    cpf: ['', [Validators.required, this.cpfValidator()]], 
     email: ['', [Validators.required, Validators.email]],
     celular: ['', [Validators.required, Validators.pattern(/^\(\d{2}\) \d{5}-\d{4}$/)]],
     idade: ['', [Validators.required, Validators.min(18), Validators.pattern(/^[0-9]*$/)]], 
@@ -142,7 +142,7 @@ bloquearNaoNumericos(event: KeyboardEvent): void {
       // Primeiro envia os dados para inscrição
       this.http.post('https://coursecheckout-backend-production.up.railway.app/api/students/inscricao', {
         ...this.registrationForm.value,
-        cpf: cpf?.replace(/\D/g, ''),// Envia o CPF sem formatação
+        cpf: cpf?.replace(/\D/g, ''),
         celular: this.registrationForm.value.celular?.replace(/\D/g, '')
       }).subscribe({
         next: (res: any) => {
