@@ -72,13 +72,19 @@
         <!-- Botão de Submit -->
         <button mat-raised-button 
         class="pix-button"
-        [disabled]="registrationForm.invalid"
+        [disabled]="registrationForm.invalid || isSubmitting"
+        [class.loading]="isSubmitting"
         (click)="onSubmit()">
-  <div class="button-content">
-    <img src="assets/pix.svg" class="pix-icon" alt="PIX">
-    <span>GERAR PAGAMENTO PIX</span>
-  </div>
-</button>
+        <div class="button-content">
+          @if (isSubmitting) {
+            <mat-spinner diameter="20" strokeWidth="2"></mat-spinner>
+          } @else {
+            <img src="assets/pix.svg" class="pix-icon" alt="PIX">
+          }
+          <span>{{ isSubmitting ? 'PROCESSANDO...' : 'GERAR PAGAMENTO PIX' }}</span>
+        </div>
+        </button>
+
       </form>
     </mat-card-content>
   </mat-card>

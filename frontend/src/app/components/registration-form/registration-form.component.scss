@@ -42,42 +42,104 @@ mat-card {
   }
   
   .pix-button {
-  
-  width: 60%;
-  height: 48px;
+  // Cores e tipografia
   background: #e98985 !important;
   color: #FFFFFF !important;
   font: 500 16px 'Roboto', sans-serif;
   border: none;
   border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  // Layout e tamanho
+  width: 100%;
+  max-width: 400px;
+  min-width: 250px;
+  height: 48px;
+  margin: 20px auto 0;
+
+  // Efeitos e transições
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
-  transition: background 0.2s ease;
-  margin-top: 20px;
   
-  /* Layout (otimizado) */
+  // Container interno
   display: flex !important;
   justify-content: center;
   align-items: center;
   padding: 0 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 
-  /* Container interno (versão simplificada) */
+  // Efeito hover
+  &:not(:disabled):hover {
+    background: #d87c78 !important;
+    box-shadow: 0 2px 8px rgba(233, 137, 133, 0.4);
+  }
+
+  // Estado desabilitado
+  &:disabled {
+    cursor: not-allowed;
+    &.loading {
+      background: #e98985 !important; // Mantém cor original durante loading
+      opacity: 0.9;
+    }
+    &:not(.loading) {
+      background: #e9b7b5 !important; // Cor desabilitado apenas quando não loading
+    }
+  }
+
+  // Container do conteúdo
   .button-content {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    padding: 0 16px;
-    height: 100%;
-    min-width: max-content;
+    width: 100%;
+    padding: 0 20px;
   }
 
-  /* Ícone (estilos consolidados) */
+  // Ícone PIX
   .pix-icon {
-    display: block;
-    width: 24px;
-    height: 24px;
-    margin: 0;
+    width: 22px;
+    height: 22px;
+  }
+
+  // Spinner de loading
+  mat-spinner {
+    display: inline-flex;
+    margin-right: 8px;
+    ::ng-deep circle {
+      stroke: currentColor;
+    }
   }
 }
 
+/* Responsividade para mobile */
+@media (max-width: 600px) {
+  .pix-button {
+    height: 44px;
+    font-size: 14px;
+    margin-top: 16px;
+    
+    .button-content {
+      padding: 0 12px;
+      gap: 6px;
+    }
+
+    mat-spinner {
+      margin-right: 6px;
+    }
+  }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 400px) {
+  .pix-button {
+    min-width: unset;
+    width: 90%;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    
+    .button-content {
+      gap: 4px;
+    }
+  }
+}
