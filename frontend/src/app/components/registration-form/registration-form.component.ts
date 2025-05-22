@@ -4,7 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-registration-form',
@@ -14,6 +16,7 @@ import { CommonModule } from '@angular/common';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
+    MatProgressSpinnerModule,
     CommonModule
   ],
   templateUrl: './registration-form.component.html',
@@ -22,6 +25,7 @@ import { CommonModule } from '@angular/common';
 export class RegistrationFormComponent {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
+  private destroy$ = new Subject<void>();
 
   registrationForm = this.fb.group({
     nome: ['', [Validators.required]],
@@ -31,7 +35,8 @@ export class RegistrationFormComponent {
     idade: ['', [Validators.required, Validators.min(18), Validators.pattern(/^[0-9]*$/)]], 
   });
 
-  isLoading: boolean | undefined;
+  isLoading: boolean = false;
+  isSubmitting: boolean = false;
 
   // Validador de CPF
   private cpfValidator(): ValidatorFn {
@@ -40,7 +45,6 @@ export class RegistrationFormComponent {
       
       if (!cpf) return null;
 
-      // Verifica se é um CPF válido
       if (cpf.length !== 11 || !this.validarCPF(cpf)) {
         return { cpfInvalido: true };
       }
@@ -49,9 +53,8 @@ export class RegistrationFormComponent {
     };
   }
 
-  // Algoritmo de validação de CPF
   private validarCPF(cpf: string): boolean {
-    if (/^(\d)\1{10}$/.test(cpf)) return false; // CPF com todos dígitos iguais
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
 
     let soma = 0;
     let resto;
@@ -76,7 +79,6 @@ export class RegistrationFormComponent {
     return true;
   }
 
-  // Formata o CPF durante a digitação
   formatarCPF(event: Event): void {
     const input = event.target as HTMLInputElement;
     let value = input.value.replace(/\D/g, '');
@@ -85,7 +87,6 @@ export class RegistrationFormComponent {
       value = value.substring(0, 11);
     }
 
-    // Aplica a máscara
     value = value.replace(/(\d{3})(\d)/, '$1.$2');
     value = value.replace(/(\d{3})(\d)/, '$1.$2');
     value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
@@ -95,83 +96,93 @@ export class RegistrationFormComponent {
   }
 
   formatarCelular(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  let value = input.value.replace(/\D/g, '');
-  
-  // Limita a 11 dígitos (DDD + número)
-  if (value.length > 11) {
-    value = value.substring(0, 11);
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+
+    let formattedValue = '';
+    if (value.length > 0) {
+      formattedValue = `(${value.substring(0, 2)}`;
+    }
+    if (value.length > 2) {
+      formattedValue += `) ${value.substring(2, 7)}`;
+    }
+    if (value.length > 7) {
+      formattedValue += `-${value.substring(7, 11)}`;
+    }
+
+    if (input.value !== formattedValue) {
+      input.value = formattedValue;
+      this.registrationForm.get('celular')?.setValue(formattedValue, { emitEvent: false });
+    }
   }
 
-  // Aplica a máscara progressivamente
-  let formattedValue = '';
-  if (value.length > 0) {
-    formattedValue = `(${value.substring(0, 2)}`;
+  bloquearNaoNumericos(event: KeyboardEvent): void {
+    const teclasPermitidas = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const teclasControle = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab','(',')','-'];
+    
+    if (!teclasPermitidas.includes(event.key) && !teclasControle.includes(event.key)) {
+      event.preventDefault();
+    }
   }
-  if (value.length > 2) {
-    formattedValue += `) ${value.substring(2, 7)}`;
-  }
-  if (value.length > 7) {
-    formattedValue += `-${value.substring(7, 11)}`;
-  }
-
-  // Atualiza o valor apenas se houve mudança
-  if (input.value !== formattedValue) {
-    input.value = formattedValue;
-    this.registrationForm.get('celular')?.setValue(formattedValue, { emitEvent: false });
-  }
-}
-
-bloquearNaoNumericos(event: KeyboardEvent): void {
-  const teclasPermitidas = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  const teclasControle = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab','(',')','-'];
-  
-  if (!teclasPermitidas.includes(event.key) && !teclasControle.includes(event.key)) {
-    event.preventDefault();
-  }
-}
 
   onSubmit() {
-    if (this.registrationForm.valid) {
+    if (this.registrationForm.valid && !this.isSubmitting) {
       this.isLoading = true;
+      this.isSubmitting = true;
 
       const { nome, cpf, email, celular, idade } = this.registrationForm.value;
 
-      console.log('Enviando dados para inscrição...');
-
-      // Primeiro envia os dados para inscrição
-      this.http.post('https://coursecheckout-backend-production.up.railway.app/api/students/inscricao', {
+      const formData = {
         ...this.registrationForm.value,
         cpf: cpf?.replace(/\D/g, ''),
-        celular: this.registrationForm.value.celular?.replace(/\D/g, '')
-      }).subscribe({
-        next: (res: any) => {
-          console.log('Inscrição salva com sucesso:', res);
+        celular: celular?.replace(/\D/g, '')
+      };
 
-          // Depois chama o checkout
-          this.http.post<{ checkoutUrl: string }>('https://coursecheckout-backend-production.up.railway.app/api/payments/checkout', {
-            nome,
-            email,
-            celular,
-            idade,
-            taxId: cpf?.replace(/\D/g, '') || '21762508001' // Usa o CPF como taxId ou valor padrão
-          }).subscribe({
-            next: (res) => {
-              console.log('Checkout URL recebida:', res.checkoutUrl);
-              this.isLoading = false;
-              window.location.href = res.checkoutUrl;
-            },
-            error: (err) => {
-              this.isLoading = false;
-              alert('Erro no checkout: ' + (err.error?.message || 'Erro desconhecido'));
-            }
-          });
-        },
-        error: (err) => {
-          this.isLoading = false;
-          alert('Erro ao salvar inscrição: ' + (err.error?.message || 'Erro desconhecido'));
-        }
-      });
+      this.http.post('https://coursecheckout-backend-production.up.railway.app/api/students/inscricao', formData)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res: any) => {
+            this.http.post<{ checkoutUrl: string }>(
+              'https://coursecheckout-backend-production.up.railway.app/api/payments/checkout', 
+              {
+                nome,
+                email,
+                celular: celular?.replace(/\D/g, ''),
+                idade,
+                taxId: cpf?.replace(/\D/g, '') || '21762508001'
+              }
+            ).pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (res) => {
+                this.isLoading = false;
+                this.isSubmitting = false;
+                window.location.href = res.checkoutUrl;
+              },
+              error: (err) => {
+                this.handleError(err, 'Erro no checkout');
+              }
+            });
+          },
+          error: (err) => {
+            this.handleError(err, 'Erro ao salvar inscrição');
+          }
+        });
     }
+  }
+
+  private handleError(err: any, defaultMessage: string) {
+    this.isLoading = false;
+    this.isSubmitting = false;
+    console.error(err);
+    alert(`${defaultMessage}: ${err.error?.message || 'Erro desconhecido'}`);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
