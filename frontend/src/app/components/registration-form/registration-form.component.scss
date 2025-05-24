@@ -32,13 +32,14 @@ mat-card {
   /* Ajuste para mensagens de erro */
   ::ng-deep .mat-mdc-form-field-subscript-wrapper {
     height: auto !important;
-    min-height: 20px;
-    margin-top: 4px !important;
+    min-height: 16px;
+    margin-top: 2px !important;
+    margin-bottom: 5px !important;
   }
   
   /* Estilo da linha inferior */
   ::ng-deep .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-line-ripple::before {
-    border-bottom-color: #823636 !important;
+    border-bottom-color: #c56f6f00 !important;
   }
   
   .pix-button {
@@ -143,3 +144,4 @@ mat-card {
     }
   }
 }
+

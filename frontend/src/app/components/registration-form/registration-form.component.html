@@ -10,18 +10,19 @@
         <!-- Campo Nome -->
         <mat-form-field appearance="fill">
           <mat-label>Nome</mat-label>
-          <input matInput formControlName="nome" required>
+          <input matInput formControlName="nome" required autocomplete="off">
           <mat-error *ngIf="registrationForm.get('nome')?.hasError('required')">
             Nome é obrigatório
           </mat-error>
         </mat-form-field>
 
         <!-- Campo CPF-->
-        <mat-form-field appearance="fill" class="clean-field">
+        <mat-form-field appearance="fill" class="clean-field custom-cpf-field ">
           <mat-label>CPF</mat-label>
           <input matInput formControlName="cpf" 
                 required
                 placeholder="000.000.000-00"
+                autocomplete="off"
                 (input)="formatarCPF($event)">
           <mat-error *ngIf="registrationForm.get('cpf')?.hasError('required')">
             CPF é obrigatório
@@ -35,7 +36,7 @@
         <!-- Campo E-mail -->
         <mat-form-field appearance="fill">
           <mat-label>E-mail</mat-label>
-          <input matInput formControlName="email" type="email" required placeholder="email@example.com">
+          <input matInput formControlName="email" type="email" required placeholder="email@example.com" autocomplete="off">
           <mat-error *ngIf="registrationForm.get('email')?.hasError('required')">
             E-mail é obrigatório
           </mat-error>
@@ -45,9 +46,9 @@
         </mat-form-field>
   
         <!-- Campo Celular -->
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="fill" class="phone-field">
           <mat-label>Celular (com DDD)</mat-label>
-          <input matInput formControlName="celular" (input)="formatarCelular($event)" required placeholder="(00) 00000-0000" (keypress)="bloquearNaoNumericos($event)" >
+          <input matInput formControlName="celular" (input)="formatarCelular($event)" required placeholder="(00) 00000-0000" autocomplete="off" (keypress)="bloquearNaoNumericos($event)" >
           <mat-error *ngIf="registrationForm.get('celular')?.hasError('required')">
             Celular é obrigatório
           </mat-error>
@@ -59,7 +60,7 @@
         <!-- Campo Idade -->
         <mat-form-field appearance="fill">
             <mat-label>Idade</mat-label>
-            <input matInput formControlName="idade" required (keypress)="bloquearNaoNumericos($event)">
+            <input matInput formControlName="idade" required autocomplete="off"(keypress)="bloquearNaoNumericos($event)">
             
             <mat-error *ngIf="registrationForm.get('idade')?.hasError('required')">
               Idade é obrigatório
